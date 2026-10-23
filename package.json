@@ -1,0 +1,6 @@
+{
+  "name": "nse-valuation-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.mjs" }
+}

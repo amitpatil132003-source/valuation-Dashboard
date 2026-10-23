@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ValueLens India</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="#">VALUE<span>LENS</span><small>INDIA</small></a><span class="tag">Personal equity research</span></header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">NSE & BSE EQUITY VALUATION</p><h1>Know what a business may be worth.</h1>
+      <form id="searchForm"><input id="searchInput" required placeholder="Search company or ticker — e.g. TCS, RELIANCE, INFY" autocomplete="off"><button>Analyse</button></form>
+      <label class="upload">Upload Screener financials (.xlsx / .xls)<input id="financialUpload" type="file" accept=".xlsx,.xls" hidden></label><span id="uploadStatus" class="hint"></span>
+      <div class="import-controls"><label>Uploaded unit<select id="uploadUnit"><option value="crore">₹ crore</option><option value="lakh">₹ lakh</option><option value="rupee">₹ rupee</option></select></label><label>Financial year end<select id="fiscalEnd"><option value="March">March</option><option value="December">December</option><option value="Other">Other / verify manually</option></select></label></div>
+      <p class="hint">Uses public market data. Enter <b>.BO</b> for BSE symbols.</p>
+      <p id="status" role="status"></p>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="company-head"><div><p id="exchange" class="eyebrow"></p><h2 id="companyName">—</h2><p id="ticker">—</p></div><div class="price"><span>Latest price</span><strong id="currentPrice">—</strong><small id="asOf">—</small></div></div>
+      <nav aria-label="Dashboard sections"><a href="#overview" data-tab="overview" class="active">Overview</a><a href="#valuation" data-tab="valuation">DCF valuation</a><a href="#sensitivity" data-tab="sensitivity">Sensitivity</a><a href="#ratios" data-tab="ratios">Ratio analysis</a><a href="#peers" data-tab="peers">Peer comparison</a><a href="#ma" data-tab="ma">M&A pipeline</a><a href="#history" data-tab="history">Project history</a><a href="#report" data-tab="report">One-page report</a><a href="#guide" data-tab="guide">Guide</a></nav>
+      <section id="overview" class="grid overview tab-panel" data-panel="overview">
+        <article class="card wide"><h3>Price history</h3><div id="chart" class="chart" aria-label="Five-year price chart"></div><p class="caption">Monthly closing price • latest point is labelled</p></article>
+        <article class="card"><h3>Key figures</h3><dl id="figures"></dl></article>
+      </section>
+      <section id="valuation" class="valuation tab-panel" data-panel="valuation">
+        <div><p class="eyebrow">BASE-CASE DCF</p><h2>Intrinsic value</h2><p class="subtle">Edit the assumptions. The model discounts forecast free cash flow and a terminal value.</p></div>
+        <div class="grid valuation-grid">
+          <article class="card inputs"><h3>Assumptions</h3>
+            <label>Revenue (₹ crore)<input id="revenue" type="number" min="1" step="1"></label>
+            <label>EBITDA margin (%)<input id="ebitdaMargin" type="number" min="0" max="100" step="0.1" value="20"></label>
+            <label>FCFF / EBITDA conversion (%)<input id="fcfMargin" type="number" min="0" max="100" step="0.1" value="60"></label>
+            <label>Revenue growth (%)<input id="growth" type="number" min="-50" max="100" step="0.1" value="12"></label>
+            <label>Forecast years<input id="years" type="number" min="3" max="15" step="1" value="7"></label>
+            <label>Discount rate / WACC (%)<input id="wacc" type="number" min="1" max="50" step="0.1" value="12"></label><p id="waccNote" class="field-note">WACC will use Nifty beta and uploaded debt/tax history when available.</p>
+            <label>Terminal growth (%)<input id="terminalGrowth" type="number" min="0" max="10" step="0.1" value="5"></label>
+            <label>Net debt (₹ crore)<input id="netDebt" type="number" step="1" value="0"></label>
+          </article>
+          <article class="card result"><h3>Valuation result</h3><span class="result-label">Estimated value per share</span><strong id="intrinsicValue">—</strong><p id="valuationStatus" class="pill">—</p><div class="bar"><i id="valueBar"></i></div><div class="compare"><span>Market price <b id="marketPrice">—</b></span><span>Margin of safety <b id="marginSafety">—</b></span></div><div class="value-bridge"><div><span>Market cap</span><b id="valuationMarketCap">—</b></div><div><span>DCF equity value</span><b id="valuationEquityValue">—</b></div></div><hr><h4>Scenario range</h4><div id="scenarios" class="scenarios"></div></article>
+        </div>
+        <article class="card model-chart-card"><h3>Historical and forecast cash flow</h3><div id="modelChart" class="model-chart" aria-label="Actual and forecast cash-flow chart"></div><p class="caption"><span class="blue-key"></span> Historical cash flow <span class="red-key"></span> Forecast cash flow. The final forecast point is labelled.</p></article>
+      </section>
+      <section id="sensitivity" class="sensitivity tab-panel" data-panel="sensitivity"><p class="eyebrow">VALUATION SENSITIVITY</p><h2>Assumption sensitivity</h2><p class="subtle">Each cell is the DCF value per share under the displayed assumption pair.</p><div class="sensitivity-grid"><article class="card"><h3>WACC and terminal growth</h3><div id="waccSensitivity"></div></article><article class="card"><h3>Revenue growth and FCFF conversion</h3><div id="conversionSensitivity"></div></article></div></section>
+      <section id="ratios" class="ratios tab-panel" data-panel="ratios">
+        <p class="eyebrow">FINANCIAL QUALITY</p><h2>Ratio analysis</h2><p class="subtle">Calculated from available live and uploaded historical data.</p>
+        <div id="ratioGrid" class="ratio-grid"></div>
+      </section>
+      <section id="peers" class="peers tab-panel" data-panel="peers"><p class="eyebrow">COMPARABLE COMPANIES</p><h2>Peer comparison</h2><p class="subtle">Enter up to five NSE/BSE tickers, separated by commas. Example: INFY, WIPRO, HCLTECH.</p><div class="peer-input"><input id="peerInput" placeholder="Add peer tickers"><button id="peerButton">Compare peers</button></div><p id="peerStatus" class="hint"></p><div class="peer-table-wrap"><table id="peerTable"><thead><tr><th>Company</th><th>Price</th><th>Market cap</th><th>Revenue</th><th>EBITDA margin</th><th>FCFF / EBITDA</th></tr></thead><tbody></tbody></table></div></section>
+      <section id="ma" class="ma tab-panel" data-panel="ma"><p class="eyebrow">END TO END M&A ANALYSIS</p><h2>Merger pipeline</h2><p class="subtle">The selected company is used as the target by default. Load an acquirer, then model the transaction economics.</p>
+        <div class="ma-company card"><h3>1. Acquirer and target</h3><div class="ma-search"><label>Acquirer ticker<input id="acquirerInput" placeholder="e.g. INFY"></label><button id="loadAcquirer">Load acquirer</button><div id="acquirerSummary" class="ma-summary">No acquirer loaded.</div><div id="targetSummary" class="ma-summary">Target: selected company.</div></div></div>
+        <div class="ma-grid"><article class="card"><h3>2. Merger assumptions</h3><label>Acquisition premium (%)<input id="premium" type="number" value="25" step="0.1"></label><label>Cash financing (%)<input id="cashMix" type="number" value="40" min="0" max="100" step="0.1"></label><label>Stock financing (%)<input id="stockMix" type="number" value="40" min="0" max="100" step="0.1"></label><label>Debt financing (%)<input id="debtMix" type="number" value="20" min="0" max="100" step="0.1"></label><label>Transaction costs (₹ Cr)<input id="transactionCosts" type="number" value="0" step="1"></label><label>Integration costs (₹ Cr)<input id="integrationCosts" type="number" value="0" step="1"></label><label>Annual cost synergies (₹ Cr)<input id="costSynergies" type="number" value="0" step="1"></label><label>Annual revenue synergies (₹ Cr)<input id="revenueSynergies" type="number" value="0" step="1"></label><label>Synergy EBITDA margin (%)<input id="synergyMargin" type="number" value="20" min="0" max="100" step="0.1"></label><label>Synergy ramp-up years<input id="synergyYears" type="number" value="3" min="1" max="10"></label></article>
+        <article class="card ma-results"><h3>3. Deal valuation and synergies</h3><div id="dealMetrics" class="metric-stack"></div><h3>4. Accretion and dilution</h3><div id="accretionMetrics" class="metric-stack"></div><p id="maNote" class="field-note">Load an acquirer to calculate the deal model.</p></article></div>
+        <article class="card"><h3>5. Due diligence checklist</h3><div id="riskChecklist" class="risk-checklist"><label><input type="checkbox" data-risk="Financial statements and debt position reviewed"> Financial statements and debt position reviewed</label><label><input type="checkbox" data-risk="Valuation and acquisition premium reviewed"> Valuation and acquisition premium reviewed</label><label><input type="checkbox" data-risk="Legal and regulatory issues reviewed"> Legal and regulatory issues reviewed</label><label><input type="checkbox" data-risk="Operational fit and integration plan reviewed"> Operational fit and integration plan reviewed</label><label><input type="checkbox" data-risk="Revenue and cost synergies validated"> Revenue and cost synergies validated</label><label><input type="checkbox" data-risk="Financing and dilution effects reviewed"> Financing and dilution effects reviewed</label></div></article>
+        <article class="card ma-report"><div><h3>6. Investment committee report</h3><p id="maReportText">Load an acquirer and complete the assumptions to create a transaction summary.</p></div><button id="printMa">Print M&A report</button></article>
+      </section>
+      <section id="history" class="history tab-panel" data-panel="history"><p class="eyebrow">PRIVATE BROWSER STORAGE</p><h2>Project history</h2><p class="subtle">Save and restore ticker and DCF assumptions on this device. Uploaded files are not stored.</p><div class="peer-input"><input id="projectName" placeholder="Project name"><button id="saveProject">Save project</button></div><div id="projectList" class="project-list"></div></section>
+      <section id="forecast" class="forecast tab-panel" data-panel="report">
+        <p class="eyebrow">12-MONTH PRICE OUTLOOK</p><h2>Valuation price forecast</h2><p class="subtle">A valuation range derived from the same bear, base, and bull DCF scenarios—not analyst consensus.</p>
+        <article class="card"><div class="forecast-head"><div><span>Current price</span><strong id="forecastCurrent">—</strong></div><div><span>Base-case target</span><strong id="forecastBase">—</strong><small id="forecastChange">—</small></div></div><div id="forecastChart" class="forecast-chart"></div><div class="forecast-labels"><span>Bear <b id="forecastBear">—</b></span><span>Base <b id="forecastBaseLabel">—</b></span><span>Bull <b id="forecastBull">—</b></span></div></article>
+      </section>
+      <section id="report" class="report tab-panel" data-panel="report">
+        <div class="report-top"><div><p class="eyebrow">ONE-PAGE VALUATION REPORT</p><h2 id="reportName">Company valuation</h2><p id="reportDate"></p></div><div class="report-actions"><button class="share" id="shareButton">Copy model link</button><button class="print" onclick="window.print()">Print / Save PDF</button></div></div><p id="shareStatus" class="hint"></p>
+        <div class="report-summary"><div><span>Conclusion</span><strong id="reportConclusion">—</strong><p id="reportSentence">Search for a company to create a report.</p></div><div class="report-value"><span>Base-case value</span><strong id="reportValue">—</strong><small id="reportUpside">—</small></div></div>
+        <div class="report-grid"><div><h3>Model assumptions</h3><ul id="reportAssumptions"></ul></div><div><h3>Business snapshot</h3><ul id="reportSnapshot"></ul></div><div><h3>Research checklist</h3><ul><li>Validate reported financials against annual filings.</li><li>Stress-test growth and cash conversion.</li><li>Consider industry, governance, and balance-sheet risks.</li></ul></div></div>
+        <footer id="reportSource">Source: —</footer>
+      </section>
+      <section id="guide" class="guide tab-panel" data-panel="guide"><p class="eyebrow">PLAIN LANGUAGE GUIDE</p><h2>Understand the dashboard</h2><p class="subtle">Tap any term below to see a simple explanation. These definitions support learning; they are not personal financial advice.</p><div class="guide-grid" id="guideGrid"></div></section>
+    </section>
+  </main><script src="app.js"></script>
+</body></html>
