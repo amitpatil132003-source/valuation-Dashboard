@@ -1,8 +1,4 @@
 {
-  "version": 2,
-  "functions": {
-    "api/company.mjs": {
-      "runtime": "nodejs22.x"
-    }
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null
 }
